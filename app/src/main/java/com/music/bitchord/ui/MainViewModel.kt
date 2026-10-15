@@ -1,6 +1,8 @@
 package com.music.bitchord.ui
 
 import android.app.Application
+import androidx.compose.ui.graphics.Color
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.music.bitchord.R
@@ -54,6 +56,7 @@ import com.music.bitchord.data.model.SearchHistoryEntity
 import com.music.bitchord.data.model.EntityType
 import com.music.bitchord.data.settings.SearchHistory
 import com.music.bitchord.download.Downloads
+import com.music.bitchord.ui.components.navigation.DockDestination
 import android.util.LruCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -90,6 +93,41 @@ import com.music.bitchord.ui.screens.matchesSearch
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
+
+open class MainViewModel : ViewModel() {
+
+    // Current active destination tab
+    private val _currentDockDestination = MutableStateFlow(DockDestination.HOME)
+    val currentDockDestination: StateFlow<DockDestination> = _currentDockDestination.asStateFlow()
+
+    // Artwork palette chrominance extracted from current media stream (Coil 3 + Palette)
+    private val _ambientArtworkAccent = MutableStateFlow<Color?>(null)
+    val ambientArtworkAccent: StateFlow<Color?> = _ambientArtworkAccent.asStateFlow()
+
+    // Flag indicating whether full-bleed video/Spotify Canvas is running
+    private val _isPlayingContinuousVideo = MutableStateFlow(false)
+    val isPlayingContinuousVideo: StateFlow<Boolean> = _isPlayingContinuousVideo.asStateFlow()
+
+    // Flag controlling dock translation visibility (e.g. lyrics/expanded player)
+    private val _isDockVisible = MutableStateFlow(true)
+    val isDockVisible: StateFlow<Boolean> = _isDockVisible.asStateFlow()
+
+    fun selectDockDestination(destination: DockDestination) {
+        _currentDockDestination.value = destination
+    }
+
+    fun updateAmbientArtworkColor(color: Color?) {
+        _ambientArtworkAccent.value = color
+    }
+
+    fun setContinuousVideoPlaying(isPlaying: Boolean) {
+        _isPlayingContinuousVideo.value = isPlaying
+    }
+
+    fun setDockVisibility(visible: Boolean) {
+        _isDockVisible.value = visible
+    }
+}
 
 /** What the Search tab searches: YouTube Music, or the Local Music folder on this device. */
 enum class SearchSource { YOUTUBE, LIBRARY }
